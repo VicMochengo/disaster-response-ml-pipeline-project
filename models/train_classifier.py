@@ -1,4 +1,5 @@
 import sys
+import re
 # data processing libraries
 import pandas as pd
 import numpy as np
@@ -10,9 +11,8 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download('wordnet')
+nltk.download(["punkt", "wordnet",  "stopwords"])
+
 #ml processing libraries
 from sklearn.metrics import confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
@@ -23,9 +23,21 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, make_scorer
+from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn import preprocessing
 
+le = preprocessing.LabelEncoder()
+
+import subprocess
+def install(package):
+    subprocess.call([sys.executable, "-m", "pip", "install", package])
+install("termcolor")
+from termcolor import colored, cprint
+
+#library to save model as a pickle file
 import pickle
 
+#library to ignore unnecessary warnings
 import warnings
 warnings.simplefilter("ignore")
 
@@ -49,12 +61,12 @@ def load_data(database_filepath):
 
     #split data to training sets vs target variables 
     X = df["message"]
-    y = df.drop(["id", "message", "original", "genre"], axis = 1)
+    Y = df.drop(["id", "message", "original", "genre"], axis = 1)
 
     # listing the columns
-    category_names = list(np.array(y.columns))
+    category_names = list(np.array(Y.columns))
 
-    return X, y, category_names
+    return X, Y, category_names
 
 
 def tokenize(text):
@@ -124,31 +136,42 @@ def evaluate_model(model, X_test, Y_test, category_names):
     Apply predications to test data and evalute metrics of the ML pipeline model
     
     Inputs:
-    x_test - prediction data raw messages
-    y_test - target variable predictions
-    col_names - list of strings containing names for each of the y_pred_array fields i.e category_names
+    model - instance of trained ml model
+    X_test - prediction data raw messages
+    Y_test - target variable predictions
+    category_names - list of strings containing names for each of the category column names
        
     Outputs:
-    data_metrics - dataframe containing accuracy, precision, recall and f1 score for a given set of y_train_array and y_pred_array labels.
+    evaluation metrics color coded based on stated thresholds i.e. accuracy, precision, recall and f1 score
     """
-    y_pred = model.predict(X_test)
+    Y_pred = model.predict(X_test)
 
     metrics = []
     
-    #evaluate metrics for each set of labels
-    for i in range(len(col_names)):
-        accuracy = accuracy_score(y_train_array[:, i], y_pred_array[:, i])
-        precision = precision_score(y_train_array[:, i], y_pred_array[:, i])
-        recall = recall_score(y_train_array[:, i], y_pred_array[:, i])
-        f1 = f1_score(y_train_array[:, i], y_pred_array[:, i])
-        
-        metrics.append([accuracy, precision, recall, f1])
-    
-    #sav metrics
-    metrics = np.array(metrics)
-    data_metrics = pd.DataFrame(data = metrics, index = col_names, columns = ["Accuracy", "Precision", "Recall", "F1"])
-      
-    return data_metrics
+    #evaluate metrics for the predictions
+    for i, col in enumerate(category_names):
+        precision, recall, fscore, support = precision_recall_fscore_support(
+            Y_test[col],
+            Y_pred[:, i], 
+            average='weighted'
+            )
+
+        print('\nReport for the column ({}):\n'.format(colored(col, 'red', attrs=['bold', 'underline'])))
+
+        if precision >= 0.8:
+            print('Precision: {}'.format(colored(round(precision, 2), 'green')))
+        else:
+            print('Precision: {}'.format(colored(round(precision, 2), 'yellow')))
+
+        if recall >= 0.8:
+            print('Recall: {}'.format(colored(round(recall, 2), 'green')))
+        else:
+            print('Recall: {}'.format(colored(round(recall, 2), 'yellow')))
+
+        if fscore >= 0.8:
+            print('F-score: {}'.format(colored(round(fscore, 2), 'green')))
+        else:
+            print('F-score: {}'.format(colored(round(fscore, 2), 'yellow')))
 
 
 def save_model(model, model_filepath):
