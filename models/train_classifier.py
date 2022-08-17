@@ -54,7 +54,7 @@ def load_data(database_filepath):
     """
     # load data from database
     engine = create_engine('sqlite:///' + database_filepath)
-    df = pd.read_sql_table("disaster_messages.db",  engine)
+    df = pd.read_sql_table("disaster_response.db",  engine)
 
     # trim df to only have rows with wanted labels/tags i.e related column should only have 0 OR 1
     df = df[(df["related"] == 0)|(df["related"] == 1)]
