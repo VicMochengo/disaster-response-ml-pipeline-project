@@ -7,11 +7,12 @@ from sqlalchemy import create_engine
 import re
 #nlp text processing libraries
 import nltk
+nltk.download(["punkt", "wordnet",  "stopwords", "averaged_perceptron_tagger"])
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
-nltk.download(["punkt", "wordnet",  "stopwords"])
+
 
 #ml processing libraries
 from sklearn.metrics import confusion_matrix
