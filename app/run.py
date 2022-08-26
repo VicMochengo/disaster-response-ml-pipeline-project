@@ -40,29 +40,68 @@ model = joblib.load("../models/disaster_response_classifier.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    #genre_counts = df.groupby('genre').count()['message']
+    #genre_names = list(genre_counts.index)
+
+    genre_count = df.groupby('genre').count()['message']
+    genre_percentage = round((genre_count/genre_count.sum()) * 100, 2)
+    genre = list(genre_count.index)
+    category_num = df.drop(['id', 'message', 'original', 'genre'], axis = 1).sum()
+    category_num = category_num.sort_values(ascending = False)
+    categories = list(category_num.index)
+
+    colors = ['yellow', 'green', 'red']
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
-            'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
-                )
-            ],
-
-            'layout': {
-                'title': 'Distribution of Message Genres',
-                'yaxis': {
-                    'title': "Count"
+            "data": [
+              {
+                "type": "pie",
+                "uid": "f4de1f",
+                "hole": 0.4,
+                "name": "Genre",
+                "pull": 0,
+                "domain": {
+                  "x": genre_percentage,
+                  "y": genre
                 },
-                'xaxis': {
-                    'title': "Genre"
+                "marker": {
+                  "colors": [
+                    "#90ee90",
+                    "#dc143c",
+                    "#ffff00"
+                   ]
+                },
+                "textinfo": "label+value",
+                "hoverinfo": "all",
+                "labels": genre,
+                "values": genre_count
+              }
+            ],
+            "layout": {
+              "title": "Count and Percent of Messages by Genre"
+            }
+        },
+        {
+            "data": [
+              {
+                "type": "bar",
+                "x": categories,
+                "y": category_num,
+                "marker": {
+                  "color": 'brown'}
                 }
+            ],
+            "layout": {
+              "title": "Count of Messages by Category",
+              'yaxis': {
+                  'title': "Count"
+              },
+              'xaxis': {
+                  'title': "Genre"
+              },
+              'barmode': 'group'
             }
         }
     ]
