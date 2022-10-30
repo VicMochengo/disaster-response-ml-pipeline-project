@@ -16,7 +16,7 @@ Finally, this project contains a web app where you can input a message and get c
 
 ### Dependencies
  - Python 3.9+
- - Machine Learning Libraries: NumPy, SciPy, Pandas, Sciki-Learn
+ - Machine Learning Libraries: NumPy, SciPy, Pandas, Scikit-Learn
  - Natural Language Processing Libraries: NLTK
  - SQLlite Database Libraqries: SQLalchemy
  - Model Loading and Saving Library: Pickle
