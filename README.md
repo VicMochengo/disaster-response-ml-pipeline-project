@@ -18,7 +18,7 @@ Finally, this project contains a web app where you can input a message and get c
  - Python 3.9+
  - Machine Learning Libraries: NumPy, SciPy, Pandas, Scikit-Learn
  - Natural Language Processing Libraries: NLTK
- - SQLlite Database Libraqries: SQLalchemy
+ - SQLlite Database Libraqries: SQLAlchemy
  - Model Loading and Saving Library: Pickle
  - Web App and Data Visualization: Flask, Plotly
 
